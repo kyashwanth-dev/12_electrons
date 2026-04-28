@@ -76,7 +76,7 @@ function Repair() {
 
     try {
       setLoading(true)
-      const componentId = generateComponentId('RPR')
+      const componentId = generateComponentId()
 
       await addDoc(collection(db, 'repair'), {
         componentId,
