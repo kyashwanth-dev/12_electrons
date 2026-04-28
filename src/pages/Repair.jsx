@@ -2,15 +2,12 @@ import { motion } from 'framer-motion'
 import {
   addDoc,
   collection,
-  doc,
   onSnapshot,
-  orderBy,
   query,
   serverTimestamp,
-  updateDoc,
   where,
 } from 'firebase/firestore'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useEventNotifications } from '../hooks/useNotifications'
 import Spinner from '../components/ui/Spinner'
@@ -20,7 +17,7 @@ import { generateComponentId, formatLocalDate, formatLocalTime } from '../utils/
 
 function Repair() {
   const { currentUser } = useAuth()
-  const { notifyRepairRequest, notifyRepairDone } = useEventNotifications()
+  const { notifyRepairRequest } = useEventNotifications()
   const [formData, setFormData] = useState({
     name: '',
     contact: '',
@@ -32,6 +29,7 @@ function Repair() {
   const [myRepairs, setMyRepairs] = useState([])
   const [repairsLoading, setRepairsLoading] = useState(!!currentUser)
   const [activeTab, setActiveTab] = useState('submit')
+  const submittingRef = useRef(false)
 
   useEffect(() => {
     if (!currentUser) {
@@ -41,13 +39,20 @@ function Repair() {
     const repairQuery = query(
       collection(db, 'repair'),
       where('ownerId', '==', currentUser.uid),
-      orderBy('createdAt', 'desc'),
     )
 
     const unsubscribe = onSnapshot(
       repairQuery,
       (snapshot) => {
-        setMyRepairs(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })))
+        const repairItems = snapshot.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .sort((left, right) => {
+            const leftTime = left.createdAt?.toMillis?.() ?? 0
+            const rightTime = right.createdAt?.toMillis?.() ?? 0
+            return rightTime - leftTime
+          })
+
+        setMyRepairs(repairItems)
         setRepairsLoading(false)
       },
       () => setRepairsLoading(false),
@@ -74,14 +79,33 @@ function Repair() {
       return
     }
 
+    if (submittingRef.current || loading) {
+      return
+    }
+
+    const trimmedName = formData.name.trim()
+    const trimmedContact = formData.contact.trim()
+    const duplicateRepair = myRepairs.some(
+      (item) =>
+        item.status === 'UnderRepair' &&
+        item.name?.trim().toLowerCase() === trimmedName.toLowerCase() &&
+        item.contact?.trim() === trimmedContact,
+    )
+
+    if (duplicateRepair) {
+      toast.error('This repair request is already submitted')
+      return
+    }
+
     try {
+      submittingRef.current = true
       setLoading(true)
       const componentId = generateComponentId()
 
       await addDoc(collection(db, 'repair'), {
         componentId,
-        name: formData.name.trim(),
-        contact: formData.contact.trim(),
+        name: trimmedName,
+        contact: trimmedContact,
         priceOpted: formData.priceOpted ? Number(formData.priceOpted) : null,
         location: formData.location.trim() || 'CMRCET',
         description: formData.description.trim(),
@@ -101,32 +125,8 @@ function Repair() {
     } catch (error) {
       toast.error(error.message || 'Failed to submit request')
     } finally {
+      submittingRef.current = false
       setLoading(false)
-    }
-  }
-
-  const markAsDone = async (repairItem) => {
-    try {
-      await updateDoc(doc(db, 'repair', repairItem.id), { status: 'Done' })
-
-      await addDoc(collection(db, 'marketplace'), {
-        componentId: repairItem.componentId,
-        name: repairItem.name,
-        price: repairItem.priceOpted || 0,
-        condition: 'Working',
-        contact: repairItem.contact,
-        description: repairItem.description || 'Repaired component',
-        ownerId: repairItem.ownerId,
-        ownerEmail: repairItem.ownerEmail,
-        status: 'available',
-        repairedFrom: repairItem.id,
-        createdAt: serverTimestamp(),
-      })
-
-      notifyRepairDone(repairItem.name)
-      toast.success(`${repairItem.name} marked as done and added to marketplace`)
-    } catch (error) {
-      toast.error(error.message || 'Failed to update status')
     }
   }
 
@@ -332,15 +332,6 @@ function Repair() {
                   <p className="text-[13px] text-[var(--text-secondary)] border-t border-[var(--border)] pt-2">{item.description}</p>
                 )}
 
-                {item.status === 'UnderRepair' && (
-                  <button
-                    type="button"
-                    onClick={() => markAsDone(item)}
-                    className="btn-primary py-2 text-[13px] w-full mt-2"
-                  >
-                    Mark as Done → Add to Marketplace
-                  </button>
-                )}
               </div>
             ))
           )}

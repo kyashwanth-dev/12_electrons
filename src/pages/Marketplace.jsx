@@ -6,7 +6,6 @@ import {
   orderBy,
   query,
   serverTimestamp,
-  where,
 } from 'firebase/firestore'
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -26,16 +25,14 @@ function Marketplace() {
   const [category, setCategory] = useState('All')
 
   useEffect(() => {
-    const componentsQuery = query(
-      collection(db, 'marketplace'),
-      where('status', '==', 'available'),
-      orderBy('createdAt', 'desc'),
-    )
+    const componentsQuery = query(collection(db, 'marketplace'), orderBy('createdAt', 'desc'))
 
     const unsubscribe = onSnapshot(
       componentsQuery,
       (snapshot) => {
-        const liveComponents = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        const liveComponents = snapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
+          .filter((item) => item.status === 'available')
         setComponents(liveComponents)
         setLoading(false)
       },
