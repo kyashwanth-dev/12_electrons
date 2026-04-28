@@ -41,20 +41,6 @@ export const useEventNotifications = () => {
     })
   }
 
-  const notifyDeliveryComplete = (componentName) => {
-    addNotification({
-      title: 'Thank you for buying from us ❤️',
-      body: `${componentName} delivery has been completed`,
-    })
-  }
-
-  const notifyRepairDone = (componentName) => {
-    addNotification({
-      title: 'Repair Complete ✅',
-      body: `${componentName} has been repaired and added back to the marketplace`,
-    })
-  }
-
   const notifyLoginSuccess = (userEmail) => {
     addNotification({
       title: 'Welcome back! 👋',
@@ -75,8 +61,6 @@ export const useEventNotifications = () => {
     notifyBuyRequest,
     notifyRentRequest,
     notifyRepairRequest,
-    notifyDeliveryComplete,
-    notifyRepairDone,
     notifyLoginSuccess,
     notifyLogout,
   }
