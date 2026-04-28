@@ -6,12 +6,10 @@ import toast from 'react-hot-toast'
 import { useEventNotifications } from '../hooks/useNotifications'
 import { useAuth } from '../context/AuthContext'
 import { db, storage } from '../firebase'
-
-function generateComponentId() {
-  const timestamp = Date.now().toString(36).toUpperCase()
-  const random = Math.random().toString(36).substring(2, 7).toUpperCase()
-  return `CMP-${timestamp}-${random}`
-}
+import {
+  CONDITION_NOT_WORKING,
+  generateComponentId,
+} from '../utils/componentUtils'
 
 function Sell() {
   const { currentUser } = useAuth()
@@ -77,7 +75,7 @@ function Sell() {
         createdAt: serverTimestamp(),
       }
 
-      if (formData.condition === 'Not Working') {
+      if (formData.condition === CONDITION_NOT_WORKING) {
         await addDoc(collection(db, 'repair'), {
           ...componentData,
           status: 'UnderRepair',
@@ -148,7 +146,7 @@ function Sell() {
             <option value="Not Working">Not Working</option>
             <option value="Don't Know">Don&apos;t Know</option>
           </select>
-          {formData.condition === 'Not Working' && (
+          {formData.condition === CONDITION_NOT_WORKING && (
             <p className="mt-1.5 text-[12px] text-amber-600">
               ⚠️ &quot;Not Working&quot; components will be routed to the repair team instead of the marketplace.
             </p>
@@ -219,7 +217,7 @@ function Sell() {
             onChange={handlePhotoChange}
             className="mt-1.5 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-[14px] text-[var(--text-primary)] outline-none transition file:mr-3 file:rounded-lg file:border-0 file:bg-[var(--accent)] file:px-3 file:py-1 file:text-[12px] file:font-medium file:text-white"
           />
-          {photoPreview && (
+          {photoPreview && photoPreview.startsWith('blob:') && (
             <img
               src={photoPreview}
               alt="Preview"

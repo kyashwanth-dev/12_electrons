@@ -14,6 +14,7 @@ import { useEventNotifications } from '../hooks/useNotifications'
 import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../context/AuthContext'
 import { db } from '../firebase'
+import { CONDITION_WORKING, CONDITION_DONT_KNOW } from '../utils/componentUtils'
 
 const categories = ['All', 'Arduino', 'Sensors', 'ICs', 'Tools']
 
@@ -157,9 +158,9 @@ function Marketplace() {
                   </div>
                   <span
                     className={`rounded-full border px-2 py-[2px] text-[11px] font-medium ${
-                      item.condition === 'Working'
+                      item.condition === CONDITION_WORKING
                         ? 'bg-[var(--green-bg)] text-[var(--green)] border-[var(--green)]/20'
-                        : item.condition === "Don't Know"
+                        : item.condition === CONDITION_DONT_KNOW
                           ? 'bg-[var(--amber-bg)] text-[var(--amber)] border-[#fde68a]'
                           : 'bg-rose-50 text-rose-600 border-rose-200'
                     }`}

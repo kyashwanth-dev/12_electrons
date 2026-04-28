@@ -16,12 +16,7 @@ import { useEventNotifications } from '../hooks/useNotifications'
 import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../context/AuthContext'
 import { db } from '../firebase'
-
-function generateSoldItemId() {
-  const timestamp = Date.now().toString(36).toUpperCase()
-  const random = Math.random().toString(36).substring(2, 7).toUpperCase()
-  return `SLD-${timestamp}-${random}`
-}
+import { generateComponentId, formatLocalDate, formatLocalTime } from '../utils/componentUtils'
 
 function Delivery() {
   const { currentUser } = useAuth()
@@ -71,8 +66,7 @@ function Delivery() {
 
     try {
       setProcessingId(request.id)
-      const soldItemId = generateSoldItemId()
-      const now = new Date()
+      const soldItemId = generateComponentId('SLD')
 
       await addDoc(collection(db, 'solded'), {
         soldItemId,
@@ -86,8 +80,8 @@ function Delivery() {
         buyerId: request.userId,
         buyerEmail: request.userEmail || '',
         deliveryStatus: 'completed',
-        deliveryDate: now.toLocaleDateString('en-GB'),
-        deliveryTime: now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }),
+        deliveryDate: formatLocalDate(),
+        deliveryTime: formatLocalTime(),
         location: data.location || 'CMRCET',
         result: 'Success',
         requestId: request.id,
@@ -98,7 +92,8 @@ function Delivery() {
 
       notifyDeliveryComplete(request.componentName)
       toast.success(`Delivery of ${request.componentName} completed!`)
-      setDeliveryData((prev) => { const copy = { ...prev }; delete copy[request.id]; return copy })
+      // eslint-disable-next-line no-unused-vars
+      setDeliveryData(({ [request.id]: _removed, ...rest }) => rest)
     } catch (error) {
       toast.error(error.message || 'Failed to complete delivery')
     } finally {

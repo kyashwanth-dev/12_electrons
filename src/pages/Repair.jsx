@@ -16,12 +16,7 @@ import { useEventNotifications } from '../hooks/useNotifications'
 import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../context/AuthContext'
 import { db } from '../firebase'
-
-function generateComponentId() {
-  const timestamp = Date.now().toString(36).toUpperCase()
-  const random = Math.random().toString(36).substring(2, 7).toUpperCase()
-  return `RPR-${timestamp}-${random}`
-}
+import { generateComponentId, formatLocalDate, formatLocalTime } from '../utils/componentUtils'
 
 function Repair() {
   const { currentUser } = useAuth()
@@ -81,8 +76,7 @@ function Repair() {
 
     try {
       setLoading(true)
-      const componentId = generateComponentId()
-      const now = new Date()
+      const componentId = generateComponentId('RPR')
 
       await addDoc(collection(db, 'repair'), {
         componentId,
@@ -95,8 +89,8 @@ function Repair() {
         ownerEmail: currentUser.email,
         status: 'UnderRepair',
         collectedAt: serverTimestamp(),
-        collectedDate: now.toLocaleDateString('en-GB'),
-        collectedTime: now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' }),
+        collectedDate: formatLocalDate(),
+        collectedTime: formatLocalTime(),
         createdAt: serverTimestamp(),
       })
 
