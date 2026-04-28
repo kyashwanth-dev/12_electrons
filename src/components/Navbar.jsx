@@ -1,10 +1,11 @@
-import { LogOut, Menu, User, X, Zap } from 'lucide-react'
+import { LogOut, Menu, User, X, Moon, Sun } from 'lucide-react'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import NotificationBell from './NotificationBell'
 import { useEventNotifications } from '../hooks/useNotifications'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 
 const navItems = [
   { name: 'Home', to: '/' },
@@ -18,11 +19,14 @@ function Navbar() {
   const [loggingOut, setLoggingOut] = useState(false)
   const { currentUser, logout } = useAuth()
   const { notifyLogout } = useEventNotifications()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
 
   const navLinkClass = ({ isActive }) =>
-    `rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200 ${
-      isActive ? 'bg-slate-800/80 text-cyan-300' : 'text-slate-300 hover:text-white'
+    `text-sm font-medium transition-colors duration-150 px-3 py-1.5 rounded-md ${
+      isActive 
+        ? 'text-[var(--green)] bg-[var(--green-dim)]' 
+        : 'text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--bg3)]'
     }`
 
   const handleLogout = async () => {
@@ -40,123 +44,133 @@ function Navbar() {
   }
 
   return (
-    <header className="sticky top-4 z-30 pt-4">
-      <nav className="glass-panel soft-glow relative px-4 py-3 sm:px-6">
-        <div className="flex items-center justify-between gap-3">
-          <Link to="/" className="flex items-center gap-2">
-            <span className="rounded-lg bg-cyan-400/20 p-2 text-cyan-300">
-              <Zap size={18} />
-            </span>
-            <span className="font-display text-sm font-semibold tracking-wide text-white sm:text-base">
-              12 Electrons
-            </span>
-          </Link>
+    <nav className="sticky top-0 z-[100] flex h-[64px] items-center justify-between border-b border-[var(--border)] bg-[var(--bg)]/85 px-4 sm:px-12 backdrop-blur-md">
+      <Link to="/" className="flex items-center gap-2.5 no-underline">
+        <div className="flex h-[40px] w-[40px] shrink-0 items-center justify-center rounded-lg dark:logo-glow">
+          <img 
+            src={theme === 'dark' ? '/logo-dark.png' : '/logo.png'} 
+            alt="12 Electrons logo" 
+            className="h-full w-full object-contain mix-blend-multiply dark:mix-blend-normal" 
+          />
+        </div>
+        <span className="text-base font-semibold text-[var(--text)]">
+          12 Electrons
+        </span>
+      </Link>
 
-          <button
-            type="button"
-            className="rounded-lg border border-slate-700/60 bg-slate-900/60 p-2 text-slate-200 md:hidden"
-            onClick={() => setOpen((prev) => !prev)}
-            aria-label="Toggle navigation"
-          >
-            {open ? <X size={18} /> : <Menu size={18} />}
-          </button>
+      <button
+        type="button"
+        className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-2 text-[var(--text-secondary)] md:hidden"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-label="Toggle navigation"
+      >
+        {open ? <X size={18} /> : <Menu size={18} />}
+      </button>
 
-          <div className="hidden items-center gap-2 md:flex">
+      <div className="hidden items-center gap-9 md:flex">
+        {navItems.map((item) => (
+          <NavLink key={item.to} to={item.to} className={navLinkClass} end={item.to === '/'}>
+            {item.name}
+          </NavLink>
+        ))}
+      </div>
+
+      <div className="hidden items-center gap-3.5 md:flex">
+        <button
+          onClick={toggleTheme}
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--bg3)] text-[15px] transition-colors hover:border-[var(--border2)] text-[var(--text2)] hover:text-[var(--text)]"
+          aria-label="Toggle theme"
+        >
+          {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
+        <NotificationBell />
+        {currentUser ? (
+          <>
+            <span className="inline-flex items-center gap-2 text-[13px] text-[var(--text-secondary)]">
+              <User size={14} className="text-[var(--text-tertiary)]" />
+              {currentUser.email}
+            </span>
+            <button
+              type="button"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="flex items-center gap-1.5 rounded-md border-none bg-transparent px-3 py-1.5 text-[13px] text-[var(--text-tertiary)] transition-colors hover:bg-[var(--bg3)] hover:text-[var(--text-secondary)] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <LogOut size={14} />
+              {loggingOut ? 'Logging out...' : 'Logout'}
+            </button>
+          </>
+        ) : (
+          <>
+            <Link to="/login" className="text-sm font-medium text-[var(--text2)] transition-colors hover:text-[var(--text)] px-4 py-2">
+              Log in
+            </Link>
+            <Link to="/signup" className="btn-primary py-[10px] px-5 rounded-lg text-sm">
+              Get started &rarr;
+            </Link>
+          </>
+        )}
+      </div>
+
+      {open ? (
+        <div className="absolute left-0 right-0 top-[64px] flex flex-col gap-3 border-b border-[var(--border)] bg-[var(--bg)] p-4 shadow-lg md:hidden">
+          <div className="flex flex-col gap-3">
             {navItems.map((item) => (
-              <NavLink key={item.to} to={item.to} className={navLinkClass} end={item.to === '/'}>
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={navLinkClass}
+                end={item.to === '/'}
+                onClick={() => setOpen(false)}
+              >
                 {item.name}
               </NavLink>
             ))}
           </div>
 
-          <div className="hidden items-center gap-2 md:flex">
-            <NotificationBell />
+          <div className="mt-2 flex flex-col gap-3 border-t border-[var(--border)] pt-4">
+            <button
+              onClick={toggleTheme}
+              className="flex w-full items-center justify-start gap-2 rounded-lg border border-[var(--border)] bg-[var(--bg3)] px-4 py-2 text-[15px] transition-colors hover:border-[var(--border2)] text-[var(--text2)] hover:text-[var(--text)]"
+            >
+              {theme === 'dark' ? <><Sun size={16} /> Light Mode</> : <><Moon size={16} /> Dark Mode</>}
+            </button>
             {currentUser ? (
               <>
-                <span className="inline-flex items-center gap-2 rounded-lg border border-slate-700/60 bg-slate-900/70 px-3 py-2 text-xs text-slate-200">
-                  <User size={14} />
+                <span className="rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text-primary)]">
                   {currentUser.email}
                 </span>
                 <button
                   type="button"
                   onClick={handleLogout}
                   disabled={loggingOut}
-                  className="inline-flex items-center gap-2 rounded-lg border border-slate-700/60 bg-slate-900/70 px-3 py-2 text-xs text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="btn-ghost justify-start px-0 text-left"
                 >
-                  <LogOut size={14} />
                   {loggingOut ? 'Logging out...' : 'Logout'}
                 </button>
               </>
             ) : (
               <>
-                <Link to="/login" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-300 hover:text-white">
-                  Login
+                <Link
+                  to="/login"
+                  onClick={() => setOpen(false)}
+                  className="btn-ghost justify-start px-0"
+                >
+                  Log in
                 </Link>
                 <Link
                   to="/signup"
-                  className="rounded-lg bg-gradient-to-r from-cyan-400 via-teal-400 to-sky-400 px-3 py-2 text-sm font-semibold text-slate-950"
+                  onClick={() => setOpen(false)}
+                  className="btn-primary justify-center"
                 >
-                  Signup
+                  Get started &rarr;
                 </Link>
               </>
             )}
           </div>
         </div>
-
-        {open ? (
-          <div className="mt-3 space-y-3 border-t border-slate-700/50 pt-3 md:hidden">
-            <div className="flex flex-col gap-2">
-              {navItems.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={navLinkClass}
-                  end={item.to === '/'}
-                  onClick={() => setOpen(false)}
-                >
-                  {item.name}
-                </NavLink>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 border-t border-slate-700/50 pt-3">
-              {currentUser ? (
-                <>
-                  <span className="rounded-lg border border-slate-700/60 bg-slate-900/70 px-3 py-2 text-xs text-slate-200">
-                    {currentUser.email}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    disabled={loggingOut}
-                    className="rounded-lg border border-slate-700/60 bg-slate-900/70 px-3 py-2 text-xs text-slate-200"
-                  >
-                    {loggingOut ? 'Logging out...' : 'Logout'}
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    to="/login"
-                    onClick={() => setOpen(false)}
-                    className="rounded-lg px-3 py-2 text-sm font-medium text-slate-300"
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    to="/signup"
-                    onClick={() => setOpen(false)}
-                    className="rounded-lg bg-gradient-to-r from-cyan-400 via-teal-400 to-sky-400 px-3 py-2 text-sm font-semibold text-slate-950"
-                  >
-                    Signup
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        ) : null}
-      </nav>
-    </header>
+      ) : null}
+    </nav>
   )
 }
 

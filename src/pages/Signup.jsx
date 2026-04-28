@@ -46,33 +46,36 @@ function Signup() {
   }
 
   return (
-    <div className="mx-auto max-w-md">
+    <div className="mx-auto max-w-md mt-12 sm:mt-20">
       <motion.form
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         onSubmit={handleSubmit}
-        className="glass-panel space-y-5 p-6 sm:p-8"
+        className="rounded-2xl border border-[var(--border)] bg-white p-6 sm:p-8 shadow-[var(--shadow-lg)] space-y-5"
       >
-        <h1 className="font-display text-3xl text-white">Signup</h1>
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-semibold tracking-[-0.02em] text-[var(--navy)]">Create an account</h1>
+          <p className="mt-1.5 text-sm text-[var(--text-secondary)]">Join the campus hardware marketplace</p>
+        </div>
 
-        {error ? <p className="rounded-lg bg-rose-500/15 p-3 text-sm text-rose-200">{error}</p> : null}
+        {error ? <p className="rounded-lg bg-rose-50 p-3 text-[13px] font-medium text-rose-600 border border-rose-200">{error}</p> : null}
 
         <div>
-          <label htmlFor="signup-email" className="text-sm font-medium text-slate-200">
-            Email
+          <label htmlFor="signup-email" className="text-[13px] font-medium text-[var(--text-secondary)]">
+            Email address
           </label>
           <input
             id="signup-email"
             type="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-slate-700/70 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none ring-cyan-400 transition focus:ring-2"
+            className="mt-1.5 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-[14px] text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)] focus:bg-white focus:ring-1 focus:ring-[var(--accent)]"
             placeholder="you@campus.edu"
           />
         </div>
 
         <div>
-          <label htmlFor="signup-password" className="text-sm font-medium text-slate-200">
+          <label htmlFor="signup-password" className="text-[13px] font-medium text-[var(--text-secondary)]">
             Password
           </label>
           <input
@@ -80,13 +83,13 @@ function Signup() {
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-slate-700/70 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none ring-cyan-400 transition focus:ring-2"
+            className="mt-1.5 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-[14px] text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)] focus:bg-white focus:ring-1 focus:ring-[var(--accent)]"
             placeholder="Minimum 6 characters"
           />
         </div>
 
         <div>
-          <label htmlFor="signup-confirm-password" className="text-sm font-medium text-slate-200">
+          <label htmlFor="signup-confirm-password" className="text-[13px] font-medium text-[var(--text-secondary)]">
             Confirm password
           </label>
           <input
@@ -94,7 +97,7 @@ function Signup() {
             type="password"
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
-            className="mt-2 w-full rounded-xl border border-slate-700/70 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none ring-cyan-400 transition focus:ring-2"
+            className="mt-1.5 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-[14px] text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)] focus:bg-white focus:ring-1 focus:ring-[var(--accent)]"
             placeholder="Repeat password"
           />
         </div>
@@ -102,14 +105,14 @@ function Signup() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-gradient-to-r from-cyan-400 via-teal-400 to-sky-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn-primary mt-2 w-full justify-center py-2.5 disabled:opacity-60"
         >
           {loading ? 'Creating account...' : 'Signup'}
         </button>
 
-        <p className="text-center text-sm text-slate-300">
+        <p className="text-center text-[13px] text-[var(--text-secondary)] pt-2">
           Already have an account?{' '}
-          <Link to="/login" className="font-medium text-cyan-300 hover:text-cyan-200">
+          <Link to="/login" className="font-medium text-[var(--accent)] hover:underline">
             Login
           </Link>
         </p>

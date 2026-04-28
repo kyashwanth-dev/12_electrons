@@ -1,15 +1,12 @@
-import { motion } from 'framer-motion'
+import React from 'react';
 
-function GlassCard({ children, className = '' }) {
+export function GlassCard({ children, className = '', ...props }) {
   return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.24, ease: 'easeOut' }}
-      className={`glass-panel ${className}`}
+    <div 
+      className={`bg-[rgba(15,17,23,0.7)] backdrop-blur-md border border-[var(--border)] rounded-xl ${className}`}
+      {...props}
     >
       {children}
-    </motion.div>
-  )
+    </div>
+  );
 }
-
-export default GlassCard

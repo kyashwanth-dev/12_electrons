@@ -54,20 +54,20 @@ function Sell() {
   }
 
   return (
-    <div className="space-y-8">
-      <section>
-        <h1 className="section-title">Sell Component</h1>
-        <p className="section-copy">Submit your spare components and reach verified student buyers.</p>
+    <div className="mx-auto max-w-2xl py-12 px-4 sm:px-6 space-y-8">
+      <section className="text-center">
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--navy)]">Sell Component</h1>
+        <p className="mt-2 text-base text-[var(--text-secondary)]">Submit your spare components and reach verified student buyers.</p>
       </section>
 
       <motion.form
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         onSubmit={handleSubmit}
-        className="glass-panel max-w-2xl space-y-5 p-6"
+        className="rounded-2xl border border-[var(--border)] bg-white p-6 sm:p-8 shadow-[var(--shadow-lg)] space-y-5"
       >
         <div>
-          <label htmlFor="name" className="text-sm font-medium text-slate-200">
+          <label htmlFor="name" className="text-[13px] font-medium text-[var(--text-secondary)]">
             Component name
           </label>
           <input
@@ -77,12 +77,12 @@ function Sell() {
             value={formData.name}
             onChange={handleChange}
             placeholder="e.g. Arduino Nano"
-            className="mt-2 w-full rounded-xl border border-slate-700/70 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none ring-cyan-400 transition focus:ring-2"
+            className="mt-1.5 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-[14px] text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)] focus:bg-white focus:ring-1 focus:ring-[var(--accent)]"
           />
         </div>
 
         <div>
-          <label htmlFor="condition" className="text-sm font-medium text-slate-200">
+          <label htmlFor="condition" className="text-[13px] font-medium text-[var(--text-secondary)]">
             Condition
           </label>
           <select
@@ -90,7 +90,7 @@ function Sell() {
             name="condition"
             value={formData.condition}
             onChange={handleChange}
-            className="mt-2 w-full rounded-xl border border-slate-700/70 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none ring-cyan-400 transition focus:ring-2"
+            className="mt-1.5 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-[14px] text-[var(--text-primary)] outline-none transition focus:border-[var(--accent)] focus:bg-white focus:ring-1 focus:ring-[var(--accent)] appearance-none"
           >
             <option>Working</option>
             <option>Refurbished</option>
@@ -99,8 +99,8 @@ function Sell() {
         </div>
 
         <div>
-          <label htmlFor="price" className="text-sm font-medium text-slate-200">
-            Expected price
+          <label htmlFor="price" className="text-[13px] font-medium text-[var(--text-secondary)]">
+            Expected price (₹)
           </label>
           <input
             id="price"
@@ -109,13 +109,13 @@ function Sell() {
             min="1"
             value={formData.price}
             onChange={handleChange}
-            placeholder="e.g. 25"
-            className="mt-2 w-full rounded-xl border border-slate-700/70 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none ring-cyan-400 transition focus:ring-2"
+            placeholder="e.g. 150"
+            className="mt-1.5 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-[14px] text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)] focus:bg-white focus:ring-1 focus:ring-[var(--accent)]"
           />
         </div>
 
         <div>
-          <label htmlFor="description" className="text-sm font-medium text-slate-200">
+          <label htmlFor="description" className="text-[13px] font-medium text-[var(--text-secondary)]">
             Description
           </label>
           <textarea
@@ -125,14 +125,14 @@ function Sell() {
             value={formData.description}
             onChange={handleChange}
             placeholder="Mention age, included accessories, and performance details"
-            className="mt-2 w-full rounded-xl border border-slate-700/70 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none ring-cyan-400 transition focus:ring-2"
+            className="mt-1.5 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-[14px] text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)] focus:bg-white focus:ring-1 focus:ring-[var(--accent)]"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="rounded-xl bg-gradient-to-r from-cyan-400 via-teal-400 to-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn-primary mt-4 w-full justify-center py-3 text-[14px] disabled:opacity-60"
         >
           {loading ? 'Submitting...' : 'Submit Listing'}
         </button>

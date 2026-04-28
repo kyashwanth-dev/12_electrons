@@ -77,26 +77,24 @@ function Marketplace() {
     }
   }
 
-
-
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       <section>
-        <h1 className="section-title">Marketplace</h1>
-        <p className="section-copy">Live inventory from students, labs, and verified campus sellers.</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--navy)]">Marketplace</h1>
+        <p className="mt-2 text-base text-[var(--text-secondary)]">Live inventory from students, labs, and verified campus sellers.</p>
       </section>
 
-      <section className="glass-panel p-4 sm:p-6">
-        <div className="grid gap-4 md:grid-cols-2">
+      <section className="rounded-xl border border-[var(--border)] bg-white p-4 sm:p-5 shadow-[var(--shadow-sm)]">
+        <div className="grid gap-4 md:grid-cols-3">
           <div>
-            <label htmlFor="category" className="text-sm font-medium text-slate-200">
-              Category
+            <label htmlFor="category" className="text-[13px] font-medium text-[var(--text-secondary)]">
+              Category filter
             </label>
             <select
               id="category"
               value={category}
               onChange={(event) => setCategory(event.target.value)}
-              className="mt-2 w-full rounded-xl border border-slate-700/70 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none ring-cyan-400 transition focus:ring-2"
+              className="mt-1.5 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[14px] text-[var(--text-primary)] outline-none transition focus:border-[var(--accent)] focus:bg-white focus:ring-1 focus:ring-[var(--accent)] appearance-none"
             >
               {categories.map((item) => (
                 <option key={item} value={item}>
@@ -108,68 +106,72 @@ function Marketplace() {
         </div>
       </section>
 
-
-
       {loading ? (
-        <div className="glass-panel">
+        <div className="flex justify-center p-12">
           <Spinner label="Fetching components..." />
         </div>
       ) : filteredComponents.length === 0 ? (
-        <div className="glass-panel p-6 text-center">
-          <p className="text-slate-400">
+        <div className="rounded-xl border border-[var(--border)] bg-white p-10 text-center shadow-[var(--shadow-sm)]">
+          <p className="text-[var(--text-secondary)]">
             {components.length === 0
               ? 'No components available yet. Add one from the Sell page!'
               : `No ${category !== 'All' ? category : ''} components found.`}
           </p>
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-[13px] text-[var(--text-tertiary)]">
             (Total in database: {components.length})
           </p>
         </div>
       ) : (
-        <motion.div layout className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div layout className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredComponents.map((item) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass-panel soft-glow p-4"
+              className="flex flex-col justify-between rounded-xl border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-sm)] transition-all hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-md)]"
             >
-              <p className="text-xs uppercase tracking-[0.16em] text-slate-400">{item.category || 'General'}</p>
-              <h3 className="mt-2 font-display text-lg text-white">{item.name}</h3>
-              <div className="mt-4 flex items-center justify-between text-sm">
-                <span className="font-semibold text-cyan-300">${item.price}</span>
-                <span
-                  className={`rounded-full px-2 py-1 text-xs ${
-                    item.condition === 'Working'
-                      ? 'bg-emerald-500/20 text-emerald-300'
-                      : item.condition === 'Refurbished'
-                        ? 'bg-amber-500/20 text-amber-200'
-                        : 'bg-rose-500/20 text-rose-200'
-                  }`}
-                >
-                  {item.condition}
-                </span>
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-tertiary)]">{item.category || 'General'}</p>
+                <h3 className="mt-1.5 text-[16px] font-semibold tracking-[-0.01em] text-[var(--navy)] line-clamp-1">{item.name}</h3>
+                
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-[18px] font-medium tracking-tight text-[var(--text-primary)]">₹{item.price}</span>
+                  <span
+                    className={`rounded-full border px-2 py-[2px] text-[11px] font-medium ${
+                      item.condition === 'Working'
+                        ? 'bg-[var(--green-bg)] text-[var(--green)] border-[var(--green)]/20'
+                        : item.condition === 'Refurbished'
+                          ? 'bg-[var(--amber-bg)] text-[var(--amber)] border-[#fde68a]'
+                          : 'bg-rose-50 text-rose-600 border-rose-200'
+                    }`}
+                  >
+                    {item.condition}
+                  </span>
+                </div>
+                <p className="mt-2 text-[13px] text-[var(--text-secondary)] capitalize">Status: {item.status || 'available'}</p>
               </div>
-              <p className="mt-2 text-xs text-slate-400">Status: {item.status || 'available'}</p>
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleAction(item, 'buy')}
-                  disabled={!currentUser}
-                  className="rounded-lg bg-gradient-to-r from-cyan-400 via-teal-400 to-sky-400 px-3 py-2 text-xs font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Buy
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleAction(item, 'rent')}
-                  disabled={!currentUser}
-                  className="rounded-lg border border-slate-600/80 bg-slate-900/40 px-3 py-2 text-xs font-semibold text-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Rent
-                </button>
+              
+              <div className="mt-5">
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleAction(item, 'buy')}
+                    disabled={!currentUser}
+                    className="btn-primary py-2 text-[13px] disabled:opacity-50"
+                  >
+                    Buy
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAction(item, 'rent')}
+                    disabled={!currentUser}
+                    className="btn-secondary py-2 text-[13px] disabled:opacity-50"
+                  >
+                    Rent
+                  </button>
+                </div>
+                {!currentUser ? <p className="mt-2 text-center text-[11px] text-[var(--text-tertiary)]">Login required for actions</p> : null}
               </div>
-              {!currentUser ? <p className="mt-2 text-xs text-slate-500">Login required for actions</p> : null}
             </motion.div>
           ))}
         </motion.div>

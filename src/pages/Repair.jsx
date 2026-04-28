@@ -46,34 +46,20 @@ function Repair() {
   }
 
   return (
-    <div className="space-y-8">
-      <section>
-        <h1 className="section-title">Repair Request</h1>
-        <p className="section-copy">Submit faults and get matched with trusted repair support.</p>
+    <div className="mx-auto max-w-2xl py-12 px-4 sm:px-6 space-y-8">
+      <section className="text-center">
+        <h1 className="text-3xl font-semibold tracking-tight text-[var(--navy)]">Repair Request</h1>
+        <p className="mt-2 text-base text-[var(--text-secondary)]">Submit faults and get matched with trusted repair support.</p>
       </section>
 
       <motion.form
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         onSubmit={handleSubmit}
-        className="glass-panel max-w-2xl space-y-5 p-6"
+        className="rounded-2xl border border-[var(--border)] bg-white p-6 sm:p-8 shadow-[var(--shadow-lg)] space-y-5"
       >
         <div>
-          <label htmlFor="issueDescription" className="text-sm font-medium text-slate-200">
-            Issue description
-          </label>
-          <textarea
-            id="issueDescription"
-            rows="5"
-            value={issueDescription}
-            onChange={(event) => setIssueDescription(event.target.value)}
-            placeholder="Describe symptoms, failed behavior, and usage context"
-            className="mt-2 w-full rounded-xl border border-slate-700/70 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none ring-cyan-400 transition focus:ring-2"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="componentType" className="text-sm font-medium text-slate-200">
+          <label htmlFor="componentType" className="text-[13px] font-medium text-[var(--text-secondary)]">
             Component type
           </label>
           <input
@@ -82,14 +68,28 @@ function Repair() {
             value={componentType}
             onChange={(event) => setComponentType(event.target.value)}
             placeholder="e.g. ESP32 Dev Board"
-            className="mt-2 w-full rounded-xl border border-slate-700/70 bg-slate-900/70 px-3 py-2 text-sm text-white outline-none ring-cyan-400 transition focus:ring-2"
+            className="mt-1.5 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-[14px] text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)] focus:bg-white focus:ring-1 focus:ring-[var(--accent)]"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="issueDescription" className="text-[13px] font-medium text-[var(--text-secondary)]">
+            Issue description
+          </label>
+          <textarea
+            id="issueDescription"
+            rows="5"
+            value={issueDescription}
+            onChange={(event) => setIssueDescription(event.target.value)}
+            placeholder="Describe symptoms, failed behavior, and usage context"
+            className="mt-1.5 w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3.5 py-2.5 text-[14px] text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-muted)] focus:border-[var(--accent)] focus:bg-white focus:ring-1 focus:ring-[var(--accent)]"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="rounded-xl bg-gradient-to-r from-cyan-400 via-teal-400 to-sky-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn-primary mt-4 w-full justify-center py-3 text-[14px] disabled:opacity-60"
         >
           {loading ? 'Submitting...' : 'Send Repair Request'}
         </button>
