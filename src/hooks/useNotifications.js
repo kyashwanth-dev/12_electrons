@@ -8,15 +8,22 @@ export const useEventNotifications = () => {
 
   const notifyComponentAdded = (componentName) => {
     addNotification({
-      title: 'Component Listed! 🎉',
-      body: `Your ${componentName} has been added to the marketplace`,
+      title: 'Hurray! 🎉',
+      body: `Your ${componentName} has been submitted to the marketplace`,
+    })
+  }
+
+  const notifyComponentRepair = (componentName) => {
+    addNotification({
+      title: 'Repair Request Received 🔧',
+      body: `${componentName} has been sent for repair`,
     })
   }
 
   const notifyBuyRequest = (componentName) => {
     addNotification({
-      title: 'New Buy Request! 💰',
-      body: `Someone wants to buy your ${componentName}`,
+      title: 'Buy Request Submitted 🛒',
+      body: `Your buy request is under processing. We will deliver ${componentName} to you shortly.`,
     })
   }
 
@@ -31,6 +38,20 @@ export const useEventNotifications = () => {
     addNotification({
       title: 'New Repair Request! 🔧',
       body: `${componentType} needs repair support`,
+    })
+  }
+
+  const notifyDeliveryComplete = (componentName) => {
+    addNotification({
+      title: 'Thank you for buying from us ❤️',
+      body: `${componentName} delivery has been completed`,
+    })
+  }
+
+  const notifyRepairDone = (componentName) => {
+    addNotification({
+      title: 'Repair Complete ✅',
+      body: `${componentName} has been repaired and added back to the marketplace`,
     })
   }
 
@@ -50,9 +71,12 @@ export const useEventNotifications = () => {
 
   return {
     notifyComponentAdded,
+    notifyComponentRepair,
     notifyBuyRequest,
     notifyRentRequest,
     notifyRepairRequest,
+    notifyDeliveryComplete,
+    notifyRepairDone,
     notifyLoginSuccess,
     notifyLogout,
   }

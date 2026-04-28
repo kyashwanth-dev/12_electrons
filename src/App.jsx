@@ -2,6 +2,8 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Footer from './components/layout/Footer'
 import Navbar from './components/Navbar'
 import ProtectedRoute from './components/ProtectedRoute'
+import Chat from './pages/Chat'
+import Delivery from './pages/Delivery'
 import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import Marketplace from './pages/Marketplace'
@@ -43,6 +45,22 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Repair />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/chat"
+                  element={
+                    <ProtectedRoute>
+                      <Chat />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/delivery"
+                  element={
+                    <ProtectedRoute>
+                      <Delivery />
                     </ProtectedRoute>
                   }
                 />

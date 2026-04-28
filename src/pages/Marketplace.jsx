@@ -6,6 +6,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  where,
 } from 'firebase/firestore'
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -18,13 +19,17 @@ const categories = ['All', 'Arduino', 'Sensors', 'ICs', 'Tools']
 
 function Marketplace() {
   const { currentUser } = useAuth()
-  const { notifyBuyRequest, notifyRentRequest } = useEventNotifications()
+  const { notifyBuyRequest } = useEventNotifications()
   const [components, setComponents] = useState([])
   const [loading, setLoading] = useState(true)
   const [category, setCategory] = useState('All')
 
   useEffect(() => {
-    const componentsQuery = query(collection(db, 'components'), orderBy('createdAt', 'desc'))
+    const componentsQuery = query(
+      collection(db, 'marketplace'),
+      where('status', '==', 'available'),
+      orderBy('createdAt', 'desc'),
+    )
 
     const unsubscribe = onSnapshot(
       componentsQuery,
@@ -46,13 +51,12 @@ function Marketplace() {
     () =>
       components.filter(
         (item) =>
-          (category === 'All' || item.category === category) &&
-          item.condition !== 'Faulty',
+          category === 'All' || item.category === category,
       ),
     [components, category],
   )
 
-  const handleAction = async (item, type) => {
+  const handleBuy = async (item) => {
     if (!currentUser) {
       toast.error('Please login to continue')
       return
@@ -61,17 +65,18 @@ function Marketplace() {
     try {
       await addDoc(collection(db, 'requests'), {
         userId: currentUser.uid,
-        type,
-        description: `${type.toUpperCase()} request for ${item.name}`,
-        componentId: item.id,
+        userEmail: currentUser.email,
+        type: 'buy',
+        componentId: item.componentId || item.id,
+        componentName: item.name,
+        price: item.price,
+        sellerContact: item.contact || '',
+        sellerId: item.ownerId,
+        deliveryStatus: 'uncompleted',
+        location: 'CMRCET',
         createdAt: serverTimestamp(),
       })
-      if (type === 'buy') {
-        notifyBuyRequest(item.name)
-      } else if (type === 'rent') {
-        notifyRentRequest(item.name)
-      }
-      toast.success(`${type === 'buy' ? 'Buy' : 'Rent'} request submitted`)
+      notifyBuyRequest(item.name)
     } catch (error) {
       toast.error(error.message || 'Could not submit request')
     }
@@ -131,16 +136,30 @@ function Marketplace() {
               className="flex flex-col justify-between rounded-xl border border-[var(--border)] bg-white p-5 shadow-[var(--shadow-sm)] transition-all hover:-translate-y-0.5 hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-md)]"
             >
               <div>
+                {item.photoURL && (
+                  <img
+                    src={item.photoURL}
+                    alt={item.name}
+                    className="mb-3 h-32 w-full rounded-lg object-cover border border-[var(--border)]"
+                  />
+                )}
                 <p className="text-[11px] font-medium uppercase tracking-wider text-[var(--text-tertiary)]">{item.category || 'General'}</p>
                 <h3 className="mt-1.5 text-[16px] font-semibold tracking-[-0.01em] text-[var(--navy)] line-clamp-1">{item.name}</h3>
-                
+                {item.componentId && (
+                  <p className="mt-0.5 text-[10px] font-mono text-[var(--text-muted)]">{item.componentId}</p>
+                )}
                 <div className="mt-3 flex items-center justify-between">
-                  <span className="text-[18px] font-medium tracking-tight text-[var(--text-primary)]">₹{item.price}</span>
+                  <div>
+                    <span className="text-[18px] font-medium tracking-tight text-[var(--text-primary)]">₹{item.price}</span>
+                    {item.opted && item.originalPrice && item.originalPrice !== item.price && (
+                      <span className="ml-2 text-[12px] line-through text-[var(--text-muted)]">₹{item.originalPrice}</span>
+                    )}
+                  </div>
                   <span
                     className={`rounded-full border px-2 py-[2px] text-[11px] font-medium ${
                       item.condition === 'Working'
                         ? 'bg-[var(--green-bg)] text-[var(--green)] border-[var(--green)]/20'
-                        : item.condition === 'Refurbished'
+                        : item.condition === "Don't Know"
                           ? 'bg-[var(--amber-bg)] text-[var(--amber)] border-[#fde68a]'
                           : 'bg-rose-50 text-rose-600 border-rose-200'
                     }`}
@@ -148,29 +167,18 @@ function Marketplace() {
                     {item.condition}
                   </span>
                 </div>
-                <p className="mt-2 text-[13px] text-[var(--text-secondary)] capitalize">Status: {item.status || 'available'}</p>
               </div>
-              
+
               <div className="mt-5">
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleAction(item, 'buy')}
-                    disabled={!currentUser}
-                    className="btn-primary py-2 text-[13px] disabled:opacity-50"
-                  >
-                    Buy
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAction(item, 'rent')}
-                    disabled={!currentUser}
-                    className="btn-secondary py-2 text-[13px] disabled:opacity-50"
-                  >
-                    Rent
-                  </button>
-                </div>
-                {!currentUser ? <p className="mt-2 text-center text-[11px] text-[var(--text-tertiary)]">Login required for actions</p> : null}
+                <button
+                  type="button"
+                  onClick={() => handleBuy(item)}
+                  disabled={!currentUser}
+                  className="btn-primary w-full py-2 text-[13px] disabled:opacity-50"
+                >
+                  Buy
+                </button>
+                {!currentUser ? <p className="mt-2 text-center text-[11px] text-[var(--text-tertiary)]">Login required</p> : null}
               </div>
             </motion.div>
           ))}
