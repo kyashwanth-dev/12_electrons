@@ -1,11 +1,9 @@
 import { motion } from 'framer-motion'
 import {
-  addDoc,
-  collection,
   onSnapshot,
   query,
-  serverTimestamp,
   where,
+  collection,
 } from 'firebase/firestore'
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -13,6 +11,7 @@ import { useEventNotifications } from '../hooks/useNotifications'
 import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../context/AuthContext'
 import { db } from '../firebase'
+import { submitToCarrier } from '../services/carrierService'
 import { generateComponentId, formatLocalDate, formatLocalTime } from '../utils/componentUtils'
 
 function Repair() {
@@ -36,9 +35,11 @@ function Repair() {
       return
     }
 
+    // Watch user's repair requests in carrier collection
     const repairQuery = query(
-      collection(db, 'repair'),
+      collection(db, 'carrier'),
       where('ownerId', '==', currentUser.uid),
+      where('source', '==', 'repair'),
     )
 
     const unsubscribe = onSnapshot(
@@ -87,7 +88,6 @@ function Repair() {
     const trimmedContact = formData.contact.trim()
     const duplicateRepair = myRepairs.some(
       (item) =>
-        item.status === 'UnderRepair' &&
         item.name?.trim().toLowerCase() === trimmedName.toLowerCase() &&
         item.contact?.trim() === trimmedContact,
     )
@@ -102,7 +102,7 @@ function Repair() {
       setLoading(true)
       const componentId = generateComponentId()
 
-      await addDoc(collection(db, 'repair'), {
+      const componentData = {
         componentId,
         name: trimmedName,
         contact: trimmedContact,
@@ -111,12 +111,12 @@ function Repair() {
         description: formData.description.trim(),
         ownerId: currentUser.uid,
         ownerEmail: currentUser.email,
-        status: 'UnderRepair',
-        collectedAt: serverTimestamp(),
         collectedDate: formatLocalDate(),
         collectedTime: formatLocalTime(),
-        createdAt: serverTimestamp(),
-      })
+      }
+
+      // Submit to carrier collection
+      await submitToCarrier(componentData, 'repair')
 
       notifyRepairRequest(formData.name)
       toast.success('Repair request submitted')
@@ -294,13 +294,9 @@ function Repair() {
                     )}
                   </div>
                   <span
-                    className={`shrink-0 rounded-full border px-2.5 py-[3px] text-[12px] font-medium ${
-                      item.status === 'Done'
-                        ? 'bg-[var(--green-bg)] text-[var(--green)] border-[var(--green)]/20'
-                        : 'bg-amber-50 text-amber-600 border-amber-200'
-                    }`}
+                    className={`shrink-0 rounded-full border px-2.5 py-[3px] text-[12px] font-medium bg-amber-50 text-amber-600 border-amber-200`}
                   >
-                    {item.status}
+                    Pending Review
                   </span>
                 </div>
 

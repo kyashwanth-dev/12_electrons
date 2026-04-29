@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion'
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useEventNotifications } from '../hooks/useNotifications'
 import { useAuth } from '../context/AuthContext'
-import { db, storage } from '../firebase'
+import { storage } from '../firebase'
+import { submitToCarrier } from '../services/carrierService'
 import {
   CONDITION_NOT_WORKING,
   generateComponentId,
@@ -72,26 +72,13 @@ function Sell() {
         photoURL,
         ownerId: currentUser.uid,
         ownerEmail: currentUser.email,
-        createdAt: serverTimestamp(),
       }
 
-      if (formData.condition === CONDITION_NOT_WORKING) {
-        await addDoc(collection(db, 'repair'), {
-          ...componentData,
-          status: 'UnderRepair',
-          location: 'CMRCET',
-          collectedAt: serverTimestamp(),
-        })
-        notifyComponentRepair(formData.name)
-        toast.success('Component sent for repair')
-      } else {
-        await addDoc(collection(db, 'marketplace'), {
-          ...componentData,
-          status: 'available',
-        })
-        notifyComponentAdded(formData.name)
-        toast.success('Component listed in marketplace')
-      }
+      // Submit to carrier collection
+      await submitToCarrier(componentData, 'sell')
+
+      notifyComponentAdded(formData.name)
+      toast.success('Component submitted successfully')
 
       setFormData({ name: '', price: '', condition: 'Working', contact: '', description: '', opted: false })
       setPhotoFile(null)
