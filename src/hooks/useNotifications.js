@@ -8,8 +8,8 @@ export const useEventNotifications = () => {
 
   const notifyComponentAdded = (componentName) => {
     addNotification({
-      title: 'Hurray! 🎉',
-      body: `Your ${componentName} has been submitted to the marketplace`,
+      title: 'Please Wait!',
+      body: `Your ${componentName} will be collected soon...`,
     })
   }
 
@@ -37,7 +37,7 @@ export const useEventNotifications = () => {
   const notifyRepairRequest = (componentType) => {
     addNotification({
       title: 'New Repair Request! 🔧',
-      body: `${componentType} needs repair support`,
+      body: `${componentType} needs repair support, we will collect your component soon...`,
     })
   }
 
