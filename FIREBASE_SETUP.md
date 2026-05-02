@@ -70,11 +70,31 @@ Your app will now connect to your Firebase project!
 
 ## Firestore Collections (Auto-Created)
 
-The app will automatically create these collections when you use the features:
+Firestore does not require you to manually create tables. The app creates collections the first time each feature writes data.
+
+The code currently uses these collections:
 
 - **users** - User account data
-- **components** - Electronics listings
-- **requests** - Buy/Rent/Repair requests
+- **marketplace** - Active component listings
+- **requests** - Buy requests and delivery workflow
+- **repair** - Repair requests and repaired items
+- **solded** - Completed delivery records
+- **chats** - Support chat messages
+
+Subcollections used by the app:
+
+- **chats/{userId}/messages** - Messages for each support chat thread
+
+## Required Indexes And Rules
+
+Some app queries combine `where(...)` and `orderBy(...)`, so Firestore will ask you to create composite indexes the first time those queries run in production or with stricter rules.
+
+Create indexes for these query patterns:
+
+- `marketplace` where `status == available` ordered by `createdAt desc`
+- `requests` where `type == buy` and `deliveryStatus == uncompleted` ordered by `createdAt desc`
+- `repair` where `ownerId == <current user>` ordered by `createdAt desc`
+- `chats/{userId}/messages` ordered by `createdAt asc`
 
 ## Security Rules (For Production)
 
@@ -84,24 +104,48 @@ When deploying, implement proper security rules in Firestore:
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Only authenticated users can read/write their own data
+    // User profile docs
     match /users/{uid} {
-      allow read, write: if request.auth.uid == uid;
+      allow read, write: if request.auth != null && request.auth.uid == uid;
     }
     
-    // Components: read all (public), write only own
-    match /components/{doc=**} {
+    // Marketplace listings are public to read, owner-only to write
+    match /marketplace/{doc=**} {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
+      allow update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
     }
     
-    // Requests: user's own only
-    match /requests/{doc=**} {
-      allow read, write: if request.auth.uid == resource.data.userId;
+    // Requests are visible to the request owner and seller/delivery flow
+    match /requests/{requestId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow read, update, delete: if request.auth != null && (
+        resource.data.userId == request.auth.uid ||
+        resource.data.sellerId == request.auth.uid
+      );
+    }
+
+    // Repair docs are owned by the creator, but can be updated by staff/owner flows
+    match /repair/{repairId} {
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
+      allow read, update, delete: if request.auth != null && resource.data.ownerId == request.auth.uid;
+    }
+
+    // Sold records are written by authenticated delivery flow
+    match /solded/{soldId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+    }
+
+    // Per-user support chat messages
+    match /chats/{userId}/messages/{messageId} {
+      allow read, create: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
 ```
+
+If Firestore reports a missing index, use the console link from the error message to create it.
 
 ---
 

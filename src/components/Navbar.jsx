@@ -12,6 +12,7 @@ const navItems = [
   { name: 'Marketplace', to: '/marketplace' },
   { name: 'Sell', to: '/sell' },
   { name: 'Repair', to: '/repair' },
+  { name: 'Chat', to: '/chat' },
 ]
 
 function Navbar() {
